@@ -1,0 +1,102 @@
+---
+title: "AE 03: Duke Forest + data visualization"
+---
+
+```{r}
+#| label: load-packages
+#| message: false
+
+library(tidyverse)
+library(openintro)
+```
+
+## Exercise 1
+
+Suppose you're helping some family friends who are looking to buy a house in Duke Forest.
+As they browse Zillow listings, they realize some houses have garages and others don't, and they wonder: **Does having a garage make a difference?**
+
+Luckily, you can help them answer this question with data visualization!
+
+-   Make histograms of the prices of houses in Duke Forest based on whether they have a garage.
+    -   In order to do this, you will first need to create a new variable called `garage` (with levels `"Garage"` and `"No garage"`).
+    -   Below is the code for creating this new variable. Here, we `mutate()` the `duke_forest` data frame to add a new variable called `garage` which takes the value `"Garage"` if the text string `"Garage"` is detected in the `parking` variable and takes the test string `"No garage"` if not.
+
+```{r}
+#| label: garage
+#| eval: true
+
+duke_forest <- duke_forest |>
+  mutate(garage = if_else(str_detect(parking, "Garage"),   "Garage", "No garage"))
+```
+
+-   Then, facet by `garage` and use different colors for the two facets.
+-   Choose an appropriate binwidth and decide whether a legend is needed, and turn it off if not.
+-   Include informative title and axis labels.
+-   Finally, include a brief (2-3 sentence) narrative comparing the distributions of prices of Duke Forest houses that do and don't have garages. Your narrative should touch on whether having a garage "makes a difference" in terms of the price of the house.
+
+```{r}
+#| label: price-garage
+
+ggplot(duke_forest, aes(x = price, fill = garage)) +
+  geom_histogram(binwidth = 50000) +
+  facet_wrap(~ garage, ncol = 1) +
+  labs(
+    title = "Distribution of House Prices in Duke Forest by Garage Presence",
+    x = "Price (USD)",
+    y = "Count"
+  ) +
+  theme(legend.position = "none")
+```
+
+The distribution of house prices for homes with a garage appears to be shifted slightly to the right compared to those without a garage, indicating that homes with garages generally have higher prices. Both distributions are right-skewed, but the "Garage" category has a longer tail extending into the higher price ranges. Thus, having a garage does seem to be associated with a higher house price.
+
+::: callout-important
+Now is a good time to render, commit, and push.
+Make sure that you commit and push all changed documents and your Git pane is completely empty before proceeding.
+:::
+
+## Exercise 2
+
+It's expected that within any given marker larger houses will be priced higher.
+It's also expected that the age of the house will have an effect on the price.
+However in some markets new houses might be more expensive while in others new construction might mean "no character" and hence be less expensive.
+So your family friends ask: "In Duke Forest, do houses that are bigger and more expensive tend to be newer ones than those that are smaller and cheaper?"
+
+Once again, data visualization skills to the rescue!
+
+-   Create a scatter plot to exploring the relationship between `price` and `area`, conditioning for `year_built`.
+-   Use `geom_smooth()` with the argument `se = FALSE` to add a smooth curve fit to the data and color the points by `year_built`.
+-   Include informative title, axis, and legend labels.
+-   Discuss each of the following claims (1-2 sentences per claim). Your discussion should touch on specific things you observe in your plot as evidence for or against the claims.
+    -   Claim 1: Larger houses are priced higher.
+    -   Claim 2: Newer houses are priced higher.
+    -   Claim 3: Bigger and more expensive houses tend to be newer ones than smaller and cheaper ones.
+
+```{r}
+#| label: price-area
+#| warning: false
+
+ggplot(duke_forest, aes(x = area, y = price, color = year_built)) +
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") + # Using black for the trend line to distinguish from colored points
+  labs(
+    title = "Price vs. Area of Houses in Duke Forest",
+    x = "Area (sq ft)",
+    y = "Price (USD)",
+    color = "Year Built"
+  )
+```
+
+-   **Claim 1: Larger houses are priced higher.**
+    The scatter plot shows a strong positive correlation between area and price. As the area on the x-axis increases, the price on the y-axis tends to increase as well, supporting the claim.
+
+-   **Claim 2: Newer houses are priced higher.**
+    Looking at the color gradient, lighter blue points (indicating more recent years) appear throughout the price range, but there isn't a strict separation where *all* newer houses are higher. However, there is a visible trend where many of the higher-priced homes (top right) are lighter in color (newer).
+
+-   **Claim 3: Bigger and more expensive houses tend to be newer ones than smaller and cheaper ones.**
+    The cluster of points in the upper-right corner (high price, large area) consists largely of lighter blue points, indicating they are newer. The lower-left corner (low price, small area) contains a mix but has many darker blue points (older homes). This supports the claim that the biggest and most expensive homes tend to be newer construction.
+
+::: callout-important
+Now is a good time to render, commit, and push.
+Make sure that you commit and push all changed documents and your Git pane is completely empty before proceeding.
+:::
