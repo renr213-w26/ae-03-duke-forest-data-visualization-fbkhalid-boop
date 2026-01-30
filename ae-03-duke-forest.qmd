@@ -34,27 +34,22 @@ duke_forest <- duke_forest |>
 -   Include informative title and axis labels.
 -   Finally, include a brief (2-3 sentence) narrative comparing the distributions of prices of Duke Forest houses that do and don't have garages. Your narrative should touch on whether having a garage "makes a difference" in terms of the price of the house.
 
-```{r}
-#| label: price-garage
 
-ggplot(duke_forest, aes(x = price, fill = garage)) +
-  geom_histogram(binwidth = 50000) +
-  facet_wrap(~ garage, ncol = 1) +
+```{r}
+duke_forest |>
+  mutate(garage = if_else(str_detect(parking, "Garage"), "Garage", "No garage")) |>
+  ggplot(aes(x = price, fill = garage)) +
+  geom_histogram(binwidth = 50000, color = "white") +
+  facet_wrap(~garage, ncol = 1) +
   labs(
-    title = "Distribution of House Prices in Duke Forest by Garage Presence",
-    x = "Price (USD)",
-    y = "Count"
-  ) +
-  theme(legend.position = "none")
+    x = "Price ($)",
+    y = "Count",
+    title = "Histogram of Price of Homes by Garage Availability",
+    fill = "Garage Status"
+  )
 ```
 
-The distribution of house prices for homes with a garage appears to be shifted slightly to the right compared to those without a garage, indicating that homes with garages generally have higher prices. Both distributions are right-skewed, but the "Garage" category has a longer tail extending into the higher price ranges. Thus, having a garage does seem to be associated with a higher house price.
-
-::: callout-important
-Now is a good time to render, commit, and push.
-Make sure that you commit and push all changed documents and your Git pane is completely empty before proceeding.
-:::
-
+The distributions of prices for houses with and without garages are  about the same in shape (both right-skewed). However, the distribution for homes with garages is shifted slightly more to the right, and the most expensive homes aka the outliers tend to have garages. Therefore, having a garage does appear to be associated with a higher price, but it is not the only factor.
 ## Exercise 2
 
 It's expected that within any given marker larger houses will be priced higher.
@@ -74,28 +69,25 @@ Once again, data visualization skills to the rescue!
 
 ```{r}
 #| label: price-area
-#| warning: false
 
 ggplot(duke_forest, aes(x = area, y = price, color = year_built)) +
-  geom_point(alpha = 0.7) +
-  geom_smooth(method = "lm", se = FALSE, color = "black") + # Using black for the trend line to distinguish from colored points
+  geom_point(size = 2, alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "black") +
   labs(
-    title = "Price vs. Area of Houses in Duke Forest",
     x = "Area (sq ft)",
-    y = "Price (USD)",
+    y = "Price ($)",
+    title = "Relationship between Price and Area",
+    subtitle = "Colored by Year Built",
     color = "Year Built"
   )
 ```
 
 -   **Claim 1: Larger houses are priced higher.**
-    The scatter plot shows a strong positive correlation between area and price. As the area on the x-axis increases, the price on the y-axis tends to increase as well, supporting the claim.
-
+True. There is a strong positive relationship between area and price (as area increases, price increases).
 -   **Claim 2: Newer houses are priced higher.**
-    Looking at the color gradient, lighter blue points (indicating more recent years) appear throughout the price range, but there isn't a strict separation where *all* newer houses are higher. However, there is a visible trend where many of the higher-priced homes (top right) are lighter in color (newer).
-
+Not strictly true on its own. Looking at the color gradient, lighter points aka the newer homes are found at both low and high prices.    
 -   **Claim 3: Bigger and more expensive houses tend to be newer ones than smaller and cheaper ones.**
-    The cluster of points in the upper-right corner (high price, large area) consists largely of lighter blue points, indicating they are newer. The lower-left corner (low price, small area) contains a mix but has many darker blue points (older homes). This supports the claim that the biggest and most expensive homes tend to be newer construction.
-
+True. If you look at the top right of the graph (high price, high area), the points tend to be lighter blue (newer). The bottom left (small, cheap) has a mix of dark and light blue.    
 ::: callout-important
 Now is a good time to render, commit, and push.
 Make sure that you commit and push all changed documents and your Git pane is completely empty before proceeding.
